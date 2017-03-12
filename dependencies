@@ -1,0 +1,155 @@
+# List the minimum kernel version required for each
+# of the listed Kconfig symbols
+
+ATL1C 3.5
+
+# depends on -EPROBE_DEFER and others now
+WL1251_SPI 3.5
+
+WL1251_SDIO 3.15
+WL1251_SDIO kconfig: CONFIG_WILINK_PLATFORM_DATA
+WLCORE_SDIO 3.15
+
+# needs no_seek_end_llseek()
+WLCORE 3.2
+WL12XX 3.2
+WL18XX 3.2
+
+# hostapd uses proc_remove()
+HOSTAP 3.10
+
+# This driver uses the remove_proc_subtree() function.
+AIRO 3.9
+AIRO_CS 3.9
+
+# Media
+MEDIA_SUPPORT 3.8
+# someone has to backport "firewire: introduce fw_driver.probe and .remove methods"
+DVB_FIREDTV 3.11
+
+SOC_CAMERA_PLATFORM 3.9
+
+# missing linux/gpio/consumer.h
+# consumer.h cannot be backported currently, as functions rely
+# on in-kernel functionality (GPIO_DEVRES), we can now backport
+# in-kernel functionality but we'd need to make that depend on
+# integration only and figure out a way to easily split that.
+# This does not seem like a good test desirable test case to
+# start that work with.
+VIDEO_ADP1653 3.13
+VIDEO_TC358743 3.13
+VIDEO_MT9P031 3.13
+
+# missing linux/property.h
+NFC_ST95HF 3.18
+
+# missing devm_gpiod_get_optional()
+# this needs devm_gpiod_get_optional() with 3 arguments.
+I2C_SI4713 3.17
+USB_SI4713 3.17
+PLATFORM_SI4713 3.17
+SOC_CAMERA_OV2640 3.17
+VIDEO_ADV7604 3.17
+VIDEO_COBALT 3.17
+VIDEO_TVP5150 3.17
+VIDEO_EM28XX_V4L2 3.17
+NFC_PN544_I2C 3.17
+
+# this needs devm_gpiod_get_index() with 4 arguments.
+NFC_NXP_NCI_I2C 3.17
+
+# this needs device_property..() functions
+NFC_FDP_I2C 3.18
+NFC_ST21NFCA_I2C 3.18
+NFC_ST_NCI_I2C 3.18
+NFC_ST_NCI_SPI 3.18
+
+# for whoever wants to backport this: GPIOF_EXPORT was redefined via commit
+# 79a9becd on v3.13-rc1~120^2~15, before this it was redefined via commit
+# f567fde2 on v3.5-rc7~32^2~4 and finally added via commit fc3a1f04 on
+# v3.5-rc1~93^2~25. We don't address any of these changes yet so we require
+# the latest interpretation.
+VIDEO_S5K6AA 3.13
+VIDEO_S5K6A3 3.13
+
+# this needs arch_phys_wc_add(), arch_phys_wc_del() and pat_enabled()
+VIDEO_FB_IVTV 4.2
+
+BCMA_DRIVER_MIPS 3.3
+SSB_DRIVER_MIPS 3.3
+# needs GPIO stuff we didn't backport
+SSB_DRIVER_GPIO 4.5
+
+# the irq handler in the gpio driver uses 
+# irq_set_chip_and_handler_name() which gets exported starting with 
+# kernel 3.7. This code is only compiled if BCMA_DRIVER_GPIO and
+# BCMA_HOST_SOC are set.
+BCMA_HOST_SOC 3.7
+
+# Uses gpiochip_get_data()
+BCMA_DRIVER_GPIO 4.5
+VIDEO_EM28XX_DVB 4.5
+DVB_CXD2820R 4.5
+DVB_USB_ANYSEE 4.5
+
+# NFC core needs PF_NFC defined in socket.h which was
+# only introduced in kernel 3.1
+NFC 3.1
+
+# This needs of_find_property() and devm_gpio_free()
+NFC_MRVL 3.3
+NFC_MRVL_USB 3.3
+NFC_MRVL_UART 3.3
+
+NFC_TRF7970A 3.4
+
+INTEL_IPS 3.2
+
+# needs mei_cldev_register_rx_cb
+NFC_MEI_PHY 4.10
+
+# missing linux/gpio/consumer.h
+NFC_PN544_I2C 3.13
+NFC_FDP 3.13
+
+# can not backport ieee802154_ptr in struct net_device wich was added in
+# 98a18b6ffc7 "netdevice: add ieee802154_ptr to net_device"
+IEEE802154 3.19
+IEEE802154_MRF24J40 3.5
+IEEE802154_6LOWPAN 3.5
+# needs devm_regmap_init_spi()
+IEEE802154_AT86RF230 3.4
+# CC2520 needes devm_pinctrl_get_select_default()
+IEEE802154_CC2520 3.5
+
+IR_IMG 3.5
+
+# missing include/linux/mfd/syscon.h file
+IR_HIX5HD2 3.7
+IR_HIX5HD2 kconfig: CONFIG_MFD_SYSCON
+
+# tracing results in compile errors
+ATH10K_TRACING 3.4
+ATH_TRACEPOINTS 3.1
+
+# missigng add_hwgenerator_randomness()
+ATH9K_HWRNG 3.17
+
+# depends on netdev_rss_key_fill() which uses net_get_random_once()
+# and since net_get_random_once() depends on static keys we've decided
+# to backport that only down to 3.5. For full details refer to backports
+# commit 8cb8816d
+# mpls_features was added with kernel 3.11
+IGB 3.11
+
+# This driver needs mmc_hw_reset() which was added in kernel version 3.2
+MWIFIEX_SDIO 3.2
+
+# these need LIB80211 and thus SKCIPHER - disable them
+IPW2100 4.3
+IPW2200 4.3
+HOSTAP 4.3
+LIBERTAS 4.3
+
+# some prototypes changed - might be fixable but I'm lazy
+NFC_WILINK 4.8
