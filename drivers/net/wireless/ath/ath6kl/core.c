@@ -28,12 +28,12 @@
 #include "cfg80211.h"
 
 unsigned int debug_mask;
-static unsigned int suspend_mode;
-static unsigned int wow_mode;
+static unsigned int suspend_mode = WLAN_POWER_STATE_WOW;
+static unsigned int wow_mode = WLAN_POWER_STATE_DEEP_SLEEP;
 static unsigned int uart_debug;
 static unsigned int ath6kl_p2p;
 static unsigned int testmode;
-static unsigned int recovery_enable;
+static unsigned int recovery_enable = 1;
 static unsigned int heart_beat_poll;
 
 module_param(debug_mask, uint, 0644);

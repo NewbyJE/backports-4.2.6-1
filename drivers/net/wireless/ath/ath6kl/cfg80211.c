@@ -39,7 +39,7 @@
 	.center_freq    = (_freq),              \
 	.flags          = (_flags),             \
 	.max_antenna_gain   = 0,                \
-	.max_power      = 30,                   \
+	.max_power      = 40,                   \
 }
 
 #define CHAN5G(_channel, _flags) {		    \
@@ -48,7 +48,7 @@
 	.center_freq    = 5000 + (5 * (_channel)),  \
 	.flags          = (_flags),                 \
 	.max_antenna_gain   = 0,                    \
-	.max_power      = 30,                       \
+	.max_power      = 40,                       \
 }
 
 #define DEFAULT_BG_SCAN_PERIOD 60
@@ -932,8 +932,11 @@ static int ath6kl_set_probed_ssids(struct ath6kl *ar,
 		else
 			ssid_list[i].flag = ANY_SSID_FLAG;
 
+#if 0
+		// breaks hidden SSIDs on HP Touchpad
 		if (n_match_ssid == 0)
 			ssid_list[i].flag |= MATCH_SSID_FLAG;
+#endif
 	}
 
 	index_to_add = i;
@@ -2210,7 +2213,7 @@ static int ath6kl_wow_suspend_vif(struct ath6kl_vif *vif,
 
 static int ath6kl_wow_suspend(struct ath6kl *ar, struct cfg80211_wowlan *wow)
 {
-	struct ath6kl_vif *first_vif, *vif;
+	struct ath6kl_vif *first_vif, *vif, *tmp_vif;
 	int ret = 0;
 	u32 filter = 0;
 	bool connected = false;
@@ -2226,13 +2229,15 @@ static int ath6kl_wow_suspend(struct ath6kl *ar, struct cfg80211_wowlan *wow)
 
 	/* install filters for each connected vif */
 	spin_lock_bh(&ar->list_lock);
-	list_for_each_entry(vif, &ar->vif_list, list) {
+	list_for_each_entry_safe(vif, tmp_vif, &ar->vif_list, list) {
 		if (!test_bit(CONNECTED, &vif->flags) ||
 		    !ath6kl_cfg80211_ready(vif))
 			continue;
 		connected = true;
 
+		spin_unlock_bh(&ar->list_lock);
 		ret = ath6kl_wow_suspend_vif(vif, wow, &filter);
+		spin_lock_bh(&ar->list_lock);
 		if (ret)
 			break;
 	}
@@ -2293,7 +2298,7 @@ static int ath6kl_wow_resume_vif(struct ath6kl_vif *vif)
 
 static int ath6kl_wow_resume(struct ath6kl *ar)
 {
-	struct ath6kl_vif *vif;
+	struct ath6kl_vif *vif, *tmp_vif;
 	int ret;
 
 	vif = ath6kl_vif_first(ar);
@@ -2312,11 +2317,13 @@ static int ath6kl_wow_resume(struct ath6kl *ar)
 	}
 
 	spin_lock_bh(&ar->list_lock);
-	list_for_each_entry(vif, &ar->vif_list, list) {
+	list_for_each_entry_safe(vif, tmp_vif, &ar->vif_list, list) {
 		if (!test_bit(CONNECTED, &vif->flags) ||
 		    !ath6kl_cfg80211_ready(vif))
 			continue;
+		spin_unlock_bh(&ar->list_lock);
 		ret = ath6kl_wow_resume_vif(vif);
+		spin_lock_bh(&ar->list_lock);
 		if (ret)
 			break;
 	}

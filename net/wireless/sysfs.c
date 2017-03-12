@@ -109,8 +109,11 @@ static int wiphy_suspend(struct device *dev)
 
 	rtnl_lock();
 	if (rdev->wiphy.registered) {
-		if (!rdev->wiphy.wowlan_config)
+#if 0
+		// breaks keep-wifi-on-during-sleep
+		if (!rdev->wowlan)
 			cfg80211_leave_all(rdev);
+#endif
 		if (rdev->ops->suspend)
 			ret = rdev_suspend(rdev, rdev->wiphy.wowlan_config);
 		if (ret == 1) {

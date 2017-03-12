@@ -853,6 +853,8 @@ static int ath6kl_sdio_suspend(struct ath6kl *ar, struct cfg80211_wowlan *wow)
 	mmc_pm_flag_t flags;
 	bool try_deepsleep = false;
 	int ret;
+	struct ath6kl_vif *vif;
+	int no_if_up;
 
 	if (ar->suspend_mode == WLAN_POWER_STATE_WOW ||
 	    (!ar->suspend_mode && wow)) {
@@ -1418,6 +1420,10 @@ static int __init ath6kl_sdio_init(void)
 {
 	int ret;
 
+#ifdef ATH6KL_ENABLE_ANDROID
+	printk(KERN_INFO "CMTP-ATH6KL v2017-03-11-test\n");
+	ath6kl_sdio_init_android();
+#endif
 	ret = sdio_register_driver(&ath6kl_sdio_driver);
 	if (ret)
 		ath6kl_err("sdio driver registration failed: %d\n", ret);
@@ -1428,6 +1434,9 @@ static int __init ath6kl_sdio_init(void)
 static void __exit ath6kl_sdio_exit(void)
 {
 	sdio_unregister_driver(&ath6kl_sdio_driver);
+#ifdef ATH6KL_ENABLE_ANDROID
+	ath6kl_sdio_exit_android();
+#endif
 }
 
 module_init(ath6kl_sdio_init);
